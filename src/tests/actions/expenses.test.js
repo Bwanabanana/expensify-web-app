@@ -1,10 +1,20 @@
 import configureMockStore from 'redux-mock-store';
 import thunk from 'redux-thunk';
 import moment from 'moment';
-import { addExpense, addExpenseAction, editExpense, removeExpense } from '../../actions/expenses';
-import expenses from '../fixtures/expenses';
+import { addExpense, addExpenseAction, editExpense, removeExpense, setExpensesAction, setExpenses } from '../../actions/expenses';
+import expenses, { storeExpenses } from '../fixtures/expenses';
 
 const createMockStore = configureMockStore([thunk]);
+
+beforeEach((done) => {
+    const expensesData = {};
+    expenses.forEach(({ id, description, note, amount, createdAt }) => {
+        // data for dynamo
+        expensesData[id] = { description, note, amount, createdAt };
+    });
+
+    done();
+});
 
 test('should set up remove expense action object', () => {
     const action = removeExpense('123abc');
@@ -56,7 +66,7 @@ test('should add expense to database and store', (done) => {
     });
 });
 
-test('should add expense with defaults to database and store', () => {
+test('should add expense with defaults to database and store', (done) => {
     const store = createMockStore({});
     const expenseDefaults = {
         description: '',
@@ -77,5 +87,25 @@ test('should add expense with defaults to database and store', () => {
 
         // test to check for dynamo data shoud be here. The done
         // call may need to be inside the promise for a data pull
+    });
+});
+
+test('should setup set expense action object with data', () => {
+    const action = setExpensesAction(expenses);
+    expect(action).toEqual({
+        type: 'SET_EXPENSES',
+        expenses
+    })
+});
+
+test('should fetch the data from persistent store', (done) => {
+    const store = createMockStore({});
+    store.dispatch(setExpenses()).then(() => {
+        const actions = store.getActions();
+        expect(actions[0]).toEqual({
+            type: 'SET_EXPENSES',
+            expenses: storeExpenses
+        });
+        done();
     });
 });
