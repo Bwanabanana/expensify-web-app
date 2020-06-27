@@ -1,5 +1,4 @@
 import moment from 'moment';
-import uuid from 'uuid';
 
 export default [{
     id: '1',

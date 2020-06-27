@@ -1,12 +1,19 @@
 import configureMockStore from 'redux-mock-store';
 import thunk from 'redux-thunk';
 import moment from 'moment';
-import { addExpense, addExpenseAction, editExpense, removeExpense, setExpensesAction, setExpenses } from '../../actions/expenses';
+import uuid from 'uuid';
+import {
+    addExpense, addExpenseAction,
+    editExpense,
+    removeExpense, removeExpenseAction,
+    setExpenses, setExpensesAction
+} from '../../actions/expenses';
 import expenses, { storeExpenses } from '../fixtures/expenses';
 
 const createMockStore = configureMockStore([thunk]);
 
 beforeEach((done) => {
+    // Throw test data into the database for testing
     const expensesData = {};
     expenses.forEach(({ id, description, note, amount, createdAt }) => {
         // data for dynamo
@@ -16,25 +23,11 @@ beforeEach((done) => {
     done();
 });
 
-test('should set up remove expense action object', () => {
-    const action = removeExpense('123abc');
-    expect(action).toEqual({
-        type: 'REMOVE_EXPENSE',
-        id: '123abc'
-    });
-});
+//
+// ADD EXPENSES
+//
 
-test('should set up edit expense action object', () => {
-    const expense = { description: 'foo', note: 'some note', amount: 'bar', createdAt: moment().valueOf };
-    const action = editExpense('123abc', expense);
-    expect(action).toEqual({
-        type: 'EDIT_EXPENSE',
-        id: '123abc',
-        updates: expense
-    });
-});
-
-test('should set up add expense action obect with provided values', () => {
+test('should set up addExpense action obect with provided values', () => {
     const action = addExpenseAction(expenses[0]);
     expect(action).toEqual({
         type: 'ADD_EXPENSE',
@@ -42,7 +35,7 @@ test('should set up add expense action obect with provided values', () => {
     });
 });
 
-test('should add expense to database and store', (done) => {
+test('should add expense to database', (done) => {
     const store = createMockStore({});
     const expense = {
         description: 'Mouse',
@@ -66,7 +59,7 @@ test('should add expense to database and store', (done) => {
     });
 });
 
-test('should add expense with defaults to database and store', (done) => {
+test('should add expense with defaults to database', (done) => {
     const store = createMockStore({});
     const expenseDefaults = {
         description: '',
@@ -90,7 +83,56 @@ test('should add expense with defaults to database and store', (done) => {
     });
 });
 
-test('should setup set expense action object with data', () => {
+//
+// REMOVE EXPENSES
+//
+
+test('should set up removeExpense action object', () => {
+    const action = removeExpenseAction('123abc');
+    expect(action).toEqual({
+        type: 'REMOVE_EXPENSE',
+        id: '123abc'
+    });
+});
+
+test('should remove expense from database store', (done) => {
+    const expense = {
+        id: uuid(),
+        description: 'Mouse',
+        amount: 3000,
+        note: 'This one is better',
+        createdAt: 1000
+    }
+    const store = createMockStore({ expenses: [expense] });
+
+    store.dispatch(removeExpense(expense.id)).then(() => {
+        const actions = store.getActions();
+        expect(actions[0]).toEqual({
+            type: 'REMOVE_EXPENSE',
+            id: expense.id
+        });
+        done(); // force jest to wait for async func to complete
+
+        // test to check for dynamo data shoud be here. The done
+        // call may need to be inside the promise for a data pull
+    });
+});
+
+test('should set up editExpense action object', () => {
+    const expense = { description: 'foo', note: 'some note', amount: 'bar', createdAt: moment().valueOf };
+    const action = editExpense('123abc', expense);
+    expect(action).toEqual({
+        type: 'EDIT_EXPENSE',
+        id: '123abc',
+        updates: expense
+    });
+});
+
+//
+// SET EXPENSES
+//
+
+test('should setup setExpenses action object with data', () => {
     const action = setExpensesAction(expenses);
     expect(action).toEqual({
         type: 'SET_EXPENSES',
@@ -98,7 +140,7 @@ test('should setup set expense action object with data', () => {
     })
 });
 
-test('should fetch the data from persistent store', (done) => {
+test('should set expenses from database', (done) => {
     const store = createMockStore({});
     store.dispatch(setExpenses()).then(() => {
         const actions = store.getActions();

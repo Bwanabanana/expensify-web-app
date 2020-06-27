@@ -9,7 +9,6 @@ export const addExpenseAction = (expense) => ({
 export const addExpense = (expense = {}) => {
     return (dispatch) => {
         const {
-            id = uuid(),
             description = '',
             note = '',
             amount = 0,
@@ -18,21 +17,33 @@ export const addExpense = (expense = {}) => {
 
         // dynamo call here
         const dynamoCall = new Promise((resolve, reject) => {
-            setTimeout(() => {
-                resolve();
-            }, 500);
+            resolve(uuid());
         });
 
-        return dynamoCall.then(() => {
+        return dynamoCall.then((id) => {
             dispatch(addExpenseAction({ id, description, note, amount, createdAt }));
         });
     };
 };
 
-export const removeExpense = (id) => ({
+export const removeExpenseAction = (id) => ({
     type: 'REMOVE_EXPENSE',
     id //shorthand for id: id
 });
+
+export const removeExpense = (id) => {
+    return (dispatch) => {
+
+        // dynamo call here
+        const dynamoCall = new Promise((resolve, reject) => {
+            resolve(id);
+        });
+
+        return dynamoCall.then((id) => {
+            dispatch(removeExpenseAction(id));
+        });
+    };
+};
 
 export const editExpense = (id, updates) => ({
     type: 'EDIT_EXPENSE',
