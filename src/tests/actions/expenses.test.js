@@ -76,10 +76,10 @@ test('should add expense with defaults to database', (done) => {
                 ...expenseDefaults
             }
         });
-        done(); // force jest to wait for async func to complete
-
         // test to check for dynamo data shoud be here. The done
         // call may need to be inside the promise for a data pull
+
+        done(); // force jest to wait for async func to complete
     });
 });
 
@@ -111,10 +111,10 @@ test('should remove expense from database store', (done) => {
             type: 'REMOVE_EXPENSE',
             id: expense.id
         });
-        done(); // force jest to wait for async func to complete
-
         // test to check for dynamo data shoud be here. The done
         // call may need to be inside the promise for a data pull
+
+        done(); // force jest to wait for async func to complete
     });
 });
 
@@ -148,10 +148,10 @@ test('should edit expense in database store', (done) => {
             id: expenses[0].id,
             updates: expense
         });
-        done(); // force jest to wait for async func to complete
-
         // test to check for dynamo data shoud be here. The done
         // call may need to be inside the promise for a data pull
+
+        done(); // force jest to wait for async func to complete
     });
 });
 
