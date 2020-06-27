@@ -1,20 +1,32 @@
 import uuid from 'uuid';
 
-export const addExpense = ({
-    description = '',
-    note = '',
-    amount = 0,
-    createdAt = 0
-} = {}) => ({
+export const addExpenseAction = (expense) => ({
     type: 'ADD_EXPENSE',
-    expense: {
-        id: uuid(),
-        description,
-        note,
-        amount,
-        createdAt
-    }
+    expense
 });
+
+export const addExpense = (expense = {}) => {
+    return (dispatch) => {
+        const {
+            id = uuid(),
+            description = '',
+            note = '',
+            amount = 0,
+            createdAt = 0
+        } = expense;
+
+        // dynamo call here
+        const dynamoCall = new Promise((resolve, reject) => {
+            setTimeout(() => {
+                resolve();
+            }, 500);
+        });
+
+        return dynamoCall.then(() => {
+            dispatch(addExpenseAction({ id, description, note, amount, createdAt }));
+        });
+    };
+};
 
 export const removeExpense = (id) => ({
     type: 'REMOVE_EXPENSE',
