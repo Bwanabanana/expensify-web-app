@@ -4,7 +4,7 @@ import moment from 'moment';
 import uuid from 'uuid';
 import {
     addExpense, addExpenseAction,
-    editExpense,
+    editExpense, editExpenseAction,
     removeExpense, removeExpenseAction,
     setExpenses, setExpensesAction
 } from '../../actions/expenses';
@@ -118,13 +118,40 @@ test('should remove expense from database store', (done) => {
     });
 });
 
+//
+// EDIT EXPENSES
+//
+
 test('should set up editExpense action object', () => {
     const expense = { description: 'foo', note: 'some note', amount: 'bar', createdAt: moment().valueOf };
-    const action = editExpense('123abc', expense);
+    const action = editExpenseAction('123abc', expense);
     expect(action).toEqual({
         type: 'EDIT_EXPENSE',
         id: '123abc',
         updates: expense
+    });
+});
+
+test('should edit expense in database store', (done) => {
+    const expense = {
+        description: 'Modified mouse',
+        amount: 40000,
+        note: 'This one is even better',
+        createdAt: 6000
+    }
+    const store = createMockStore({ expenses: expenses });
+
+    store.dispatch(editExpense(expenses[0].id, expense)).then(() => {
+        const actions = store.getActions();
+        expect(actions[0]).toEqual({
+            type: 'EDIT_EXPENSE',
+            id: expenses[0].id,
+            updates: expense
+        });
+        done(); // force jest to wait for async func to complete
+
+        // test to check for dynamo data shoud be here. The done
+        // call may need to be inside the promise for a data pull
     });
 });
 

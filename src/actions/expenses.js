@@ -45,11 +45,25 @@ export const removeExpense = (id) => {
     };
 };
 
-export const editExpense = (id, updates) => ({
+export const editExpenseAction = (id, updates) => ({
     type: 'EDIT_EXPENSE',
     id,
     updates
 });
+
+export const editExpense = (id, expense) => {
+    return (dispatch) => {
+
+        // dynamo call here
+        const dynamoCall = new Promise((resolve, reject) => {
+            resolve({ id, expense });
+        });
+
+        return dynamoCall.then(({ id, expense }) => {
+            dispatch(editExpenseAction(id, expense));
+        });
+    };
+};
 
 export const setExpensesAction = (expenses) => ({
     type: 'SET_EXPENSES',
