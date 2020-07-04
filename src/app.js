@@ -4,9 +4,10 @@ import { Provider } from 'react-redux';
 import AppRouter from './routers/AppRouter';
 import configureStore from './store/configureStore';
 import { setExpenses } from './actions/expenses';
+import 'react-dates-temp/initialize';
 import 'normalize.css/normalize.css';
 import './styles/styles.scss';
-import 'react-dates/lib/css/_datepicker.css';
+import 'react-dates-temp/lib/css/_datepicker.css';
 
 const store = configureStore();
 

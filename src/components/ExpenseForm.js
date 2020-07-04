@@ -1,6 +1,6 @@
 import React from 'react';
 import moment, { relativeTimeThreshold } from 'moment';
-import { SingleDatePicker } from 'react-dates';
+import { SingleDatePicker } from 'react-dates-temp';
 
 export default class ExpenseForm extends React.Component {
 
