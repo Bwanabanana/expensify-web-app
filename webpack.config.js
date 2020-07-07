@@ -16,10 +16,11 @@ module.exports = (env, argv) => {
   const isProduction = (env === 'production');
 
   return {
+    mode: env,
     entry: './src/app.js',
     output: {
-      path: path.join(__dirname, 'public', 'dist'),
-      filename: 'bundle.js'
+      path: path.join(__dirname, 'public'),
+      filename: './dist/bundle.js',
     },
     module: {
       rules: [
@@ -31,14 +32,15 @@ module.exports = (env, argv) => {
           ]
         },
         {
-          test: /\.s?css$/i,
+          test: /\.s?css$/,
           use: [
             {
-              loader: MiniCssExtractPlugin.loader
+              loader: MiniCssExtractPlugin.loader,
             },
             {
               loader: 'css-loader',
               options: {
+                url: false,
                 sourceMap: true
               }
             },
@@ -53,16 +55,18 @@ module.exports = (env, argv) => {
       ]
     },
     plugins: [
-      new MiniCssExtractPlugin(),
-      new webpack.DefinePlugin({
-
+      new MiniCssExtractPlugin({
+        filename: 'style.css'
       })
     ],
     devtool: isProduction ? 'source-map' : 'inline-source-map',
     devServer: {
       contentBase: path.join(__dirname, 'public'),
       historyApiFallback: true,
-      publicPath: '/dist/'
+      publicPath: '/dist/',
+      hot: true,
+      port: 8080,
+      compress: true
     }
   }
 };
