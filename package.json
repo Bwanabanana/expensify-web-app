@@ -25,6 +25,7 @@
     "aws-amplify": "^3.0.18",
     "babel-loader": "^8.1.0",
     "express": "^4.15.4",
+    "fetch": "^1.1.0",
     "mini-css-extract-plugin": "^0.9.0",
     "moment": "^2.18.1",
     "node-sass": "^4.14.1",

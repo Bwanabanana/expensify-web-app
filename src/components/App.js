@@ -1,9 +1,10 @@
 import React from 'react';
 import { Provider } from 'react-redux';
+// import { Auth } from 'aws-amplify';
 import AppRouter from '../routers/AppRouter';
 import { withAuthenticator, AmplifySignOut } from '@aws-amplify/ui-react';
 import configureStore from '../store/configureStore';
-import { setExpenses } from '../actions/expenses';
+import { loadExpenses } from '../actions/expenses';
 
 const store = configureStore();
 
@@ -17,7 +18,7 @@ class App extends React.Component {
     }
 
     componentDidMount() {
-        store.dispatch(setExpenses()).then(() => {
+        store.dispatch(loadExpenses()).then(() => {
             this.setState({ loading: false });
         });
     }
