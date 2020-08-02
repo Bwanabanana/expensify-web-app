@@ -6,7 +6,7 @@ import {
     addExpense, addExpenseAction,
     editExpense, editExpenseAction,
     removeExpense, removeExpenseAction,
-    setExpenses, setExpensesAction
+    loadExpenses, setExpensesAction
 } from '../../actions/expenses';
 import expenses, { storeExpenses } from '../fixtures/expenses';
 
@@ -164,12 +164,12 @@ test('should setup setExpenses action object with data', () => {
     expect(action).toEqual({
         type: 'SET_EXPENSES',
         expenses
-    })
+    });
 });
 
-test('should set expenses from database', (done) => {
+test('should load expenses from database', (done) => {
     const store = createMockStore({});
-    store.dispatch(setExpenses()).then(() => {
+    store.dispatch(loadExpenses()).then(() => {
         const actions = store.getActions();
         expect(actions[0]).toEqual({
             type: 'SET_EXPENSES',
