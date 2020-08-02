@@ -21,7 +21,7 @@ export const addExpense = (expense = {}) => {
             const jwt = cognitoToken.getJwtToken();
             return jwt;
         }).then((jwt) => {
-            const url = `https://api.bwanabanana.com/expenses/${id}`;
+            const url = `https://api.expensify.bwanabanana.com/expenses/${id}`;
             const options = {
                 method: 'PUT',
                 headers: {
@@ -50,7 +50,7 @@ export const removeExpense = (id) => {
             const jwt = cognitoToken.getJwtToken();
             return jwt;
         }).then((jwt) => {
-            const url = `https://api.bwanabanana.com/expenses/${id}`;
+            const url = `https://api.expensify.bwanabanana.com/expenses/${id}`;
             const options = {
                 method: 'DELETE',
                 headers: {
@@ -87,7 +87,7 @@ export const editExpense = (id, updates) => {
                 createdAt = 0
             } = updates;
 
-            const url = `https://api.bwanabanana.com/expenses/${id}`;
+            const url = `https://api.expensify.bwanabanana.com/expenses/${id}`;
             const options = {
                 method: 'PUT',
                 headers: {
@@ -116,7 +116,7 @@ export const loadExpenses = () => {
             const jwt = cognitoToken.getJwtToken();
             return jwt;
         }).then((jwt) => {
-            const url = 'https://api.bwanabanana.com/expenses';
+            const url = 'https://api.expensify.bwanabanana.com/expenses';
             const options = {
                 headers: {
                     Authorization: jwt
