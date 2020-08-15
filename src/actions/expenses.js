@@ -9,7 +9,6 @@ export const addExpenseAction = (expense) => ({
 export const addExpense = (expense = {}) => {
     return (dispatch) => {
         const {
-            id = uuid(),
             description = '',
             note = '',
             amount = 0,
@@ -21,9 +20,9 @@ export const addExpense = (expense = {}) => {
             const jwt = cognitoToken.getJwtToken();
             return jwt;
         }).then((jwt) => {
-            const url = `https://api.expensify.bwanabanana.com/expenses/${id}`;
+            const url = 'https://api.expensify.bwanabanana.com/expenses';
             const options = {
-                method: 'PUT',
+                method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                     'Authorization': jwt
@@ -32,7 +31,11 @@ export const addExpense = (expense = {}) => {
             };
             return fetch(url, options);
         }).then((response) => {
-            dispatch(addExpenseAction({ id, description, note, amount, createdAt }));
+            return response.json();
+        }).then((json) => {
+            console.log(json);
+            var uuid = json.uuid;
+            dispatch(addExpenseAction({ id: uuid, description, note, amount, createdAt }));
         });
     };
 };
@@ -50,7 +53,7 @@ export const removeExpense = (id) => {
             const jwt = cognitoToken.getJwtToken();
             return jwt;
         }).then((jwt) => {
-            const url = `https://api.expensify.bwanabanana.com/expenses/${id}`;
+            const url = 'https://api.expensify.bwanabanana.com/expenses/' + id;
             const options = {
                 method: 'DELETE',
                 headers: {
@@ -87,7 +90,7 @@ export const editExpense = (id, updates) => {
                 createdAt = 0
             } = updates;
 
-            const url = `https://api.expensify.bwanabanana.com/expenses/${id}`;
+            const url = 'https://api.expensify.bwanabanana.com/expenses/' + id;
             const options = {
                 method: 'PUT',
                 headers: {
