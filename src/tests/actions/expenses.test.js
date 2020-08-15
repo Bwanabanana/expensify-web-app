@@ -1,3 +1,4 @@
+import { Auth } from 'aws-amplify';
 import configureMockStore from 'redux-mock-store';
 import thunk from 'redux-thunk';
 import moment from 'moment';
@@ -20,6 +21,15 @@ beforeEach((done) => {
         expensesData[id] = { description, note, amount, createdAt };
     });
 
+    // Mock out the Amplify Auth
+    jest.spyOn(Auth, 'currentSession').mockImplementation(() => {
+        return Promise.resolve({
+            getIdToken: () => ({
+                getJwtToken: () => ("Secret-Token")
+            })
+        });
+    });
+
     done();
 });
 
@@ -36,11 +46,20 @@ test('should set up addExpense action obect with provided values', () => {
 });
 
 test('should add expense to database', (done) => {
+
+    const id = uuid();
+
+    global.fetch = jest.fn().mockImplementation(() => {
+        return Promise.resolve({
+            json: () => Promise.resolve({ id })
+        });
+    });
+
     const store = createMockStore({});
     const expense = {
         description: 'Mouse',
-        amount: 3000,
         note: 'This one is better',
+        amount: 3000,
         createdAt: 1000
     }
     store.dispatch(addExpense(expense)).then(() => {
@@ -48,23 +67,36 @@ test('should add expense to database', (done) => {
         expect(actions[0]).toEqual({
             type: 'ADD_EXPENSE',
             expense: {
-                id: expect.any(String),
+                id,
                 ...expense
             }
         });
-        done(); // force jest to wait for async func to complete
 
-        // test to check for dynamo data shoud be here. The done
-        // call may need to be inside the promise for a data pull
+        expect(global.fetch).toHaveBeenCalledTimes(1);
+        expect(global.fetch).toHaveBeenCalledWith(expensesUrl(), addExpensePayload(expense));
+
+        global.fetch.mockClear();
+        delete global.fetch;
+
+        done(); // force jest to wait for async func to complete
     });
 });
 
 test('should add expense with defaults to database', (done) => {
+
+    const id = uuid();
+
+    global.fetch = jest.fn().mockImplementation(() => {
+        return Promise.resolve({
+            json: () => Promise.resolve({ id })
+        });
+    });
+
     const store = createMockStore({});
     const expenseDefaults = {
         description: '',
-        amount: 0,
         note: '',
+        amount: 0,
         createdAt: 0
     }
     store.dispatch(addExpense()).then(() => {
@@ -72,12 +104,16 @@ test('should add expense with defaults to database', (done) => {
         expect(actions[0]).toEqual({
             type: 'ADD_EXPENSE',
             expense: {
-                id: expect.any(String),
+                id,
                 ...expenseDefaults
             }
         });
-        // test to check for dynamo data shoud be here. The done
-        // call may need to be inside the promise for a data pull
+
+        expect(global.fetch).toHaveBeenCalledTimes(1);
+        expect(global.fetch).toHaveBeenCalledWith(expensesUrl(), addExpensePayload(expenseDefaults));
+
+        global.fetch.mockClear();
+        delete global.fetch;
 
         done(); // force jest to wait for async func to complete
     });
@@ -96,6 +132,13 @@ test('should set up removeExpense action object', () => {
 });
 
 test('should remove expense from database store', (done) => {
+
+    global.fetch = jest.fn().mockImplementation(() => {
+        return Promise.resolve({
+            json: () => Promise.resolve({})
+        });
+    });
+
     const expense = {
         id: uuid(),
         description: 'Mouse',
@@ -111,8 +154,12 @@ test('should remove expense from database store', (done) => {
             type: 'REMOVE_EXPENSE',
             id: expense.id
         });
-        // test to check for dynamo data shoud be here. The done
-        // call may need to be inside the promise for a data pull
+
+        expect(global.fetch).toHaveBeenCalledTimes(1);
+        expect(global.fetch).toHaveBeenCalledWith(expensesUrl(expense.id), removeExpensePayload());
+
+        global.fetch.mockClear();
+        delete global.fetch;
 
         done(); // force jest to wait for async func to complete
     });
@@ -133,10 +180,17 @@ test('should set up editExpense action object', () => {
 });
 
 test('should edit expense in database store', (done) => {
+
+    global.fetch = jest.fn().mockImplementation(() => {
+        return Promise.resolve({
+            json: () => Promise.resolve({})
+        });
+    });
+
     const expense = {
         description: 'Modified mouse',
-        amount: 40000,
         note: 'This one is even better',
+        amount: 40000,
         createdAt: 6000
     }
     const store = createMockStore({ expenses: expenses });
@@ -148,8 +202,12 @@ test('should edit expense in database store', (done) => {
             id: expenses[0].id,
             updates: expense
         });
-        // test to check for dynamo data shoud be here. The done
-        // call may need to be inside the promise for a data pull
+
+        expect(global.fetch).toHaveBeenCalledTimes(1);
+        expect(global.fetch).toHaveBeenCalledWith(expensesUrl(expenses[0].id), editExpensePayload(expense));
+
+        global.fetch.mockClear();
+        delete global.fetch;
 
         done(); // force jest to wait for async func to complete
     });
@@ -168,13 +226,78 @@ test('should setup setExpenses action object with data', () => {
 });
 
 test('should load expenses from database', (done) => {
+
+    global.fetch = jest.fn().mockImplementation(() => {
+        return Promise.resolve({
+            json: () => Promise.resolve({ expenses: storeExpenses })
+        });
+    });
+
     const store = createMockStore({});
     store.dispatch(loadExpenses()).then(() => {
+
         const actions = store.getActions();
         expect(actions[0]).toEqual({
             type: 'SET_EXPENSES',
             expenses: storeExpenses
         });
-        done();
+
+        expect(global.fetch).toHaveBeenCalledTimes(1);
+        expect(global.fetch).toHaveBeenCalledWith(expensesUrl(), fetchExpensePayload());
+
+        global.fetch.mockClear();
+        delete global.fetch;
+
+        done(); // force jest to wait for async func to complete
     });
 });
+
+const addExpensePayload = (expense) => {
+    return {
+        method: 'POST',
+        headers: {
+            'Authorization': "Secret-Token",
+            'Content-Type': "application/json"
+        },
+        body: JSON.stringify(expense)
+    };
+};
+
+const removeExpensePayload = () => {
+    return {
+        method: 'DELETE',
+        headers: {
+            'Authorization': "Secret-Token",
+            'Content-Type': "application/json"
+        }
+    };
+};
+
+const editExpensePayload = (expense) => {
+    return {
+        method: 'PUT',
+        headers: {
+            'Authorization': "Secret-Token",
+            'Content-Type': "application/json"
+        },
+        body: JSON.stringify(expense)
+    };
+};
+
+const fetchExpensePayload = () => {
+    return {
+        method: 'GET',
+        headers: {
+            Authorization: "Secret-Token"
+        }
+    };
+};
+
+const expensesUrl = (expenseId) => {
+    const defaultUrl = 'https://api.expensify.bwanabanana.com/expenses';
+    if (expenseId === undefined) {
+        return defaultUrl;
+    } else {
+        return defaultUrl + '/' + expenseId;
+    }
+}

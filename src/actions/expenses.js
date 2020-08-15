@@ -1,4 +1,3 @@
-import uuid from 'uuid';
 import { Auth } from 'aws-amplify';
 
 export const addExpenseAction = (expense) => ({
@@ -17,8 +16,7 @@ export const addExpense = (expense = {}) => {
 
         return Auth.currentSession().then((res) => {
             const cognitoToken = res.getIdToken();
-            const jwt = cognitoToken.getJwtToken();
-            return jwt;
+            return cognitoToken.getJwtToken();
         }).then((jwt) => {
             const url = 'https://api.expensify.bwanabanana.com/expenses';
             const options = {
@@ -33,9 +31,7 @@ export const addExpense = (expense = {}) => {
         }).then((response) => {
             return response.json();
         }).then((json) => {
-            console.log(json);
-            var uuid = json.uuid;
-            dispatch(addExpenseAction({ id: uuid, description, note, amount, createdAt }));
+            dispatch(addExpenseAction({ id: json.id, description, note, amount, createdAt }));
         });
     };
 };
@@ -53,7 +49,7 @@ export const removeExpense = (id) => {
             const jwt = cognitoToken.getJwtToken();
             return jwt;
         }).then((jwt) => {
-            const url = 'https://api.expensify.bwanabanana.com/expenses/' + id;
+            const url = `https://api.expensify.bwanabanana.com/expenses/${id}`;
             const options = {
                 method: 'DELETE',
                 headers: {
@@ -90,7 +86,7 @@ export const editExpense = (id, updates) => {
                 createdAt = 0
             } = updates;
 
-            const url = 'https://api.expensify.bwanabanana.com/expenses/' + id;
+            const url = `https://api.expensify.bwanabanana.com/expenses/${id}`;
             const options = {
                 method: 'PUT',
                 headers: {
@@ -121,6 +117,7 @@ export const loadExpenses = () => {
         }).then((jwt) => {
             const url = 'https://api.expensify.bwanabanana.com/expenses';
             const options = {
+                method: 'GET',
                 headers: {
                     Authorization: jwt
                 }
@@ -129,7 +126,6 @@ export const loadExpenses = () => {
         }).then((response) => {
             return response.json();
         }).then((json) => {
-            console.log(json);
             dispatch(setExpensesAction(json.expenses));
         });
     };

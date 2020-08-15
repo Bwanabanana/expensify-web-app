@@ -35,7 +35,7 @@ class App extends React.Component {
                 <AmplifySignOut />
                 {this.state.loading
                     ?
-                    <h2>Loading...</h2>
+                    <h2>Retrieving Expenses...</h2>
                     :
                     <Provider store={store}>
                         <AppRouter />
