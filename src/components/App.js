@@ -2,8 +2,7 @@ import React from 'react';
 import { Provider } from 'react-redux';
 import Amplify from 'aws-amplify';
 import AppRouter from '../routers/AppRouter';
-import { Authenticator } from 'aws-amplify-react';
-import { withAuthenticator, AmplifySignOut } from '@aws-amplify/ui-react';
+import { withAuthenticator } from '@aws-amplify/ui-react';
 import configureStore from '../store/configureStore';
 import { loadExpenses } from '../actions/expenses';
 
@@ -52,32 +51,16 @@ class App extends React.Component {
     render() {
         if (this.state.loading) {
             return (
-                <div>
-                    <AmplifySignOut />
-                    <h2>Retrieving Expenses...</h2>
-                </div>
+                <h2>Retrieving Expenses...</h2>
             );
         } else {
             return (
-                <div>
-                    <AmplifySignOut />
-                    <Provider store={store}>
-                        <AppRouter />
-                    </Provider>
-                </div>
+                <Provider store={store}>
+                    <AppRouter />
+                </Provider>
             )
         }
     }
 }
 
-const AppWithAuthenticator = withAuthenticator(App, false, []);
-
-export default class AppWithAuth extends React.Component {
-    render() {
-        return (
-            <Authenticator hideDefault={true} theme={myTheme}>
-                <AppWithAuthenticator />
-            </Authenticator>
-        )
-    }
-}
+export default withAuthenticator(App, { includeGreetings: false }, undefined, undefined, myTheme);
