@@ -19,8 +19,9 @@ module.exports = (env, argv) => {
     mode: env,
     entry: './src/app.js',
     output: {
-      path: path.join(__dirname, 'public'),
-      filename: './dist/bundle.js',
+      path: path.join(__dirname, 'public', 'dist'), // where I want the output placed
+      filename: 'bundle.js', // name of the initial chunk
+      publicPath: "/dist/"   // root path for retrieval of chunks in running app
     },
     module: {
       rules: [
@@ -36,11 +37,15 @@ module.exports = (env, argv) => {
           use: [
             {
               loader: MiniCssExtractPlugin.loader,
+              options: {
+                publicPath: (resourcePath, context) => {
+                  return path.join(__dirname, 'public', 'dist') + '/'
+                }
+              }
             },
             {
               loader: 'css-loader',
               options: {
-                url: false,
                 sourceMap: true
               }
             },
@@ -56,14 +61,14 @@ module.exports = (env, argv) => {
     },
     plugins: [
       new MiniCssExtractPlugin({
-        filename: 'style.css'
+        filename: 'styles.css'
       })
     ],
     devtool: isProduction ? 'source-map' : 'inline-source-map',
     devServer: {
       contentBase: path.join(__dirname, 'public'),
-      historyApiFallback: true,
       publicPath: '/dist/',
+      historyApiFallback: true,
       hot: true,
       port: 8080,
       compress: true
