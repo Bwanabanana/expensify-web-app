@@ -5,6 +5,7 @@ import AppRouter from '../routers/AppRouter';
 import { withAuthenticator } from '@aws-amplify/ui-react';
 import configureStore from '../store/configureStore';
 import { loadExpenses } from '../actions/expenses';
+import LoadingPage from './LoadingPage.js';
 
 const ampConfig = Amplify.configure({
     Auth: {
@@ -51,7 +52,7 @@ class App extends React.Component {
     render() {
         if (this.state.loading) {
             return (
-                <h2>Retrieving Expenses...</h2>
+                <LoadingPage />
             );
         } else {
             return (
