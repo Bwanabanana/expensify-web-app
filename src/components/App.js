@@ -11,7 +11,18 @@ const ampConfig = Amplify.configure({
     Auth: {
         region: 'eu-west-2',
         userPoolId: 'eu-west-2_59mzxsHwL',
-        userPoolWebClientId: '2dmom3jhfm11466uvk7lmp91br'
+        userPoolWebClientId: '2dmom3jhfm11466uvk7lmp91br',
+        identityPoolId: 'eu-west-2:4dd6a353-79a8-4a98-8f93-74f3498bbbe1'
+    },
+    API: {
+        endpoints: [
+            {
+                name: 'ExpensifyApi',
+                region: 'eu-west-2',
+                service: "apigateway",
+                endpoint: 'https://apigateway.eu-west-2.amazonaws.com'
+            }
+        ]
     }
 });
 
